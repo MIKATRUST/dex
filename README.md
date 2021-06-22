@@ -3,8 +3,7 @@ Decentralized Exchange
 
  ! Educational purpose only
 
-Thanks to https://eattheblocks-pro.teachable.com/
-
+MikaTrust Enrolled as part of https://eattheblocks-pro.teachable.com/
 
 #Setup the Truffle project
 $ truffle init
@@ -17,4 +16,6 @@ $ npm install @openzeppelin/contracts @openzeppelin/test-helpers
 
 #Change solc compilier version in truffle-config.js
 
+#Compile contract
+$ truffle compile
 
