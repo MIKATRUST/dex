@@ -95,7 +95,6 @@ contract Dex is Ownable {
         tokenExists(ticker)
         tokenIsNotDai(ticker)
         external {
-            require(ticker != DAI,'can not trade DAI');
             if(side == Side.SELL){
                 require(traderBalances[msg.sender][ticker] >= amount,
                 'token balance too low'
@@ -152,20 +151,54 @@ contract Dex is Ownable {
                 );
             }
             
-            Order[] storage orders = orderBook[ticker][uint(side)];
-            //Order[] storage orders = orderBook[ticker][uint(side)][uint(side == Side.Buy ? Side.SELL : Side.BUY)];
+            Order[] storage orders = orderBook[ticker][uint(side)][uint(side == Side.Buy ? Side.SELL : Side.BUY)];
             uint i;
             uint remaining = amount;
+
             while(i < orders.length && remaining > 0){
                 uint available = orders[i].amount - orders[i].filled;
-            
-            
+                uint matched = (remaining > available) ? available : remaining;
+                remaining -= matched;
+                orders[i].filled += matched;
+                emit NewTrade(
+                    nextTradeId, 
+                    orders[i].id, 
+                    ticker,
+                    orders[i].trader,
+                    msg.sender, 
+                    matched, 
+                    orders[i].price, 
+                    block.timestamp
+                );
+
+                if(side == Side.SELL){
+                    traderBalances[msg.sender][ticker] -= matched;
+                    traderBalances[msg.sender][DAI] += matched * orders[i].price;
+                    traderBalances[orders[i].trader][ticker] += matched;
+                    traderBalances[orders[i].trader] -= matched * orders[i].price;
+                }
+                if(side == Side.BUY){
+                    require(
+                        traderBalances[msg.sender][DAI] >= matched * orders[i].price,
+                        'dai balance too low'
+                    );
+                    traderBalances[msg.sender][ticker] += matched;
+                    traderBalances[msg.sender][DAI] -= matched * orders[i].price;
+                    traderBalances[orders[i].trader][ticker] -= matched;
+                    traderBalances[orders[i].trader] += matched * orders[i].price;
+                }
+                nextTradeId++;
+                i++;
             }
-            this.createLimiteOrder (
-                ticker,
-                amount,
-                orderBook[ticker][uint(side)][0].price,
-                side);
+
+            //Clean the order book by removing filled order
+            while(i < orders.length && orders[i].filled == orders[i].amount){
+                for(uint j = i; j<orders.length; j++){
+                    orders[j] = orders [j + 1];
+                }
+                orders.pop();
+                i++; 
+            }
     }
 
     function getOrders(

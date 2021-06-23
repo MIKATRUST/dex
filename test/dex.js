@@ -1,4 +1,5 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
+const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 const Dai = artifacts.require('mocks/Dai.sol');
 const Bat = artifacts.require('mocks/Bat.sol');
 const Rep = artifacts.require('mocks/Rep.sol');
@@ -13,6 +14,11 @@ contract('Dex', (accounts) => {
 
     const [DAI, BAT, REP, ZRX] = ['DAI', 'BAT', 'REP', 'ZRX']
         .map(ticker => web3.utils.fromAscii(ticker));
+
+    const SIDE = {
+        BUY:0,
+        SELL:1
+    };
 
     beforeEach(async() => {
         ([dai, bat, rep, zrx] = await Promise.all([
@@ -102,7 +108,7 @@ contract('Dex', (accounts) => {
         );
     });
 
-    it.only('should withdraw token, dex balance should be 0 and trader balance should be set to the initial amount ', async () => {
+    it('should withdraw token, dex balance should be 0 and trader balance should be set to the initial amount ', async () => {
 
         const amount = web3.utils.toWei('100');
 
@@ -128,6 +134,149 @@ contract('Dex', (accounts) => {
 
     });
 
+    it('should NOT createLimiteOrder if token does not exist', async () => {
+        await expectRevert(
+            dex.createLimiteOrder(
+                web3.utils.fromAscii('TOKEN-DOES-NOT-EXIST'),
+                web3.utils.toWei('100'),
+                10,
+                SIDE.SELL,
+                {from: trader1}
+            ),
+            'this token does not exist'
+        );
+    });
+
+    it('should NOT createLimiteOrder if token is DAI', async () => {
+        await expectRevert(
+            dex.createLimiteOrder(
+                DAI,
+                web3.utils.toWei('100'),
+                10,
+                SIDE.SELL,
+                {from: trader1}
+            ),
+            'can not trade DAI'
+        );
+    });
+
+    it('should NOT createLimiteOrder if token balance too low', async () => {
+        await expectRevert(
+            dex.createLimiteOrder(
+                BAT,
+                web3.utils.toWei('100'),
+                1,
+                SIDE.SELL,
+                {from: trader1}
+            ),
+            'token balance too low'
+        );
+    });
+
+    it('should NOT createLimiteOrder if dai balance too low', async () => {
+        await expectRevert(
+            dex.createLimiteOrder(
+                BAT,
+                web3.utils.toWei('100'),
+                100,
+                SIDE.BUY,
+                {from: trader1}
+            ),
+            'dai balance too low'
+        );
+    });
+
+    it.only('should createLimiteOrder, order book should be set correctly ', async () => {
+
+        const amount = web3.utils.toWei('1000');
+
+        await dex.deposit(
+            amount,
+            DAI,
+            {from:trader1}
+        );
+
+        await dex.deposit(
+            amount,
+            BAT,
+            {from:trader2}
+        );
+
+        await dex.createLimiteOrder(
+            BAT,
+            web3.utils.toWei('100'),
+            5,
+            SIDE.BUY,
+            {from: trader1}
+        );
+
+        await dex.createLimiteOrder(
+            BAT,
+            web3.utils.toWei('101'),
+            6,
+            SIDE.BUY,
+            {from: trader1}
+        );
+        await dex.createLimiteOrder(
+            BAT,
+            web3.utils.toWei('98'),
+            100,
+            SIDE.SELL,
+            {from: trader2}
+        );
+
+        await dex.createLimiteOrder(
+            BAT,
+            web3.utils.toWei('99'),
+            90,
+            SIDE.SELL,
+            {from: trader2}
+        ); 
+
+        const [buyOrders, sellOrders] = await Promise.all([
+            dex.getOrders(BAT, SIDE.BUY),
+            dex.getOrders(BAT, SIDE.SELL),
+        ]);
+
+        /*
+        struct Order {
+            uint id;
+            address trader;
+            Side side;
+            bytes32 ticker;
+            uint amount;
+            uint filled;
+            uint price;
+            uint date;
+        }
+        */
+
+        assert(buyOrders.length === 2);
+        assert(buyOrders[0].trader === trader1);
+        assert(buyOrders[0].ticker === web3.utils.padRight(BAT, 64));
+        assert(buyOrders[0].price === '6');
+        assert(buyOrders[0].amount === web3.utils.toWei('101'));
+
+        assert(buyOrders[1].trader === trader1);
+        assert(buyOrders[1].ticker === web3.utils.padRight(BAT, 64));
+        assert(buyOrders[1].side === SIDE.BUY.toString());
+        assert(buyOrders[1].price === '5');
+        assert(buyOrders[1].amount === web3.utils.toWei('100'));
+
+        assert(sellOrders.length === 2);
+
+        assert(sellOrders[0].trader === trader2);
+        assert(sellOrders[0].ticker === web3.utils.padRight(BAT, 64));
+        assert(sellOrders[0].price === '90');
+        assert(sellOrders[0].amount === web3.utils.toWei('99'));
+
+        assert(sellOrders[1].trader === trader2);
+        assert(sellOrders[1].ticker === web3.utils.padRight(BAT, 64));
+        assert(sellOrders[1].price === '100');
+        assert(sellOrders[1].amount === web3.utils.toWei('98'));
+
+    });
+    
 });
 
 
