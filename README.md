@@ -24,3 +24,8 @@ $ sudo npm install -g create-react-app
 
 #Create the react client within the project directory
 $ create-react-app client
+
+#Install bootstrap 
+$ cd client
+$ npm install bootstrap
+
