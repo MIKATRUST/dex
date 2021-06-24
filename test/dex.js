@@ -186,7 +186,7 @@ contract('Dex', (accounts) => {
         );
     });
 
-    it.only('should createLimiteOrder, order book should be set correctly ', async () => {
+    it('should createLimiteOrder, order book should be set correctly ', async () => {
 
         const amount = web3.utils.toWei('1000');
 
@@ -277,8 +277,8 @@ contract('Dex', (accounts) => {
         assert(sellOrders[1].amount === '90');
     });
 
-    it('should createMarketOrder and match against limit orders ', async () => {
-        const amount = web3.utils.toWei('1000');
+    it.only('should createMarketOrder and match against limit orders ', async () => {
+        const amount = '1000'; //web3.utils.toWei('1000');
 
         await dex.deposit(
             amount,
@@ -291,48 +291,34 @@ contract('Dex', (accounts) => {
             BAT,
             {from:trader2}
         );
-
+        
         await dex.createLimiteOrder(
             BAT,
-            5,
-            web3.utils.toWei('100'),
+            '5',
+            '100',/*web3.utils.toWei('100')*/
             SIDE.BUY,
             {from: trader1}
         );
 
         await dex.createMarketOrder(
             BAT,
-            100,
+            '100',
             SIDE.SELL,
             {from: trader2}
         );
 
-/*
-        const balance = await dex.traderBalances(trader1, DAI);
-        assert (balance.toString() === amount);
+        const balance11 = await dex.traderBalances(trader1, DAI);
+        const balance12 = await dex.traderBalances(trader1, BAT);
+        const balance21 = await dex.traderBalances(trader2, DAI);
+        const balance22 = await dex.traderBalances(trader2, BAT);
 
-        const balance = await dex.traderBalances(trader2, DAI);
-        assert (balance.toString() === amount);
-*/
-/*
-        let balance = await dex.traderBalances(trader1, BAT);
-        assert (balance.toString() === '0');
-*/
-/*
-        balance = await dex.traderBalances(trader1, BAT);
-        assert (balance.toString() === '5');
-*/
-
-/*
-        const [buyOrders, sellOrders] = await Promise.all([
-            dex.getOrders(BAT, SIDE.BUY),
-            dex.getOrders(BAT, SIDE.SELL),
-        ]);
-
-*/
-
+        assert (balance11.toString() === '500');
+        assert (balance12.toString() === '5');
+        assert (balance21.toString() === '500');
+        assert (balance22.toString() === '995');
 
     });
+
 
     
 });

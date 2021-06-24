@@ -19,3 +19,8 @@ $ npm install @openzeppelin/contracts @openzeppelin/test-helpers
 #Compile contract
 $ truffle compile
 
+#install react for the frontend
+$ sudo npm install -g create-react-app
+
+#Create the react client within teh project directory
+$ create-react-app client
