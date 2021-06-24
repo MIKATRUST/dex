@@ -106,6 +106,19 @@ contract Dex is Ownable {
 
             }
 
+            /*
+            struct Order {
+                uint id;
+                address trader;
+                Side side;
+                bytes32 ticker;
+                uint amount;
+                uint filled;
+                uint price;
+                uint date;
+            }
+            */
+
             Order[] storage orders = orderBook[ticker][uint(side)];
             orders.push(Order(
                 nextOrderId,
@@ -151,7 +164,7 @@ contract Dex is Ownable {
                 );
             }
             
-            Order[] storage orders = orderBook[ticker][uint(side)][uint(side == Side.Buy ? Side.SELL : Side.BUY)];
+            Order[] storage orders = orderBook[ticker][uint(side == Side.BUY ? Side.SELL : Side.BUY)];
             uint i;
             uint remaining = amount;
 
@@ -175,7 +188,7 @@ contract Dex is Ownable {
                     traderBalances[msg.sender][ticker] -= matched;
                     traderBalances[msg.sender][DAI] += matched * orders[i].price;
                     traderBalances[orders[i].trader][ticker] += matched;
-                    traderBalances[orders[i].trader] -= matched * orders[i].price;
+                    traderBalances[orders[i].trader][DAI]  -= matched * orders[i].price;
                 }
                 if(side == Side.BUY){
                     require(
@@ -185,7 +198,7 @@ contract Dex is Ownable {
                     traderBalances[msg.sender][ticker] += matched;
                     traderBalances[msg.sender][DAI] -= matched * orders[i].price;
                     traderBalances[orders[i].trader][ticker] -= matched;
-                    traderBalances[orders[i].trader] += matched * orders[i].price;
+                    traderBalances[orders[i].trader][DAI] += matched * orders[i].price;
                 }
                 nextTradeId++;
                 i++;
