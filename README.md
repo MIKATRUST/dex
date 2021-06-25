@@ -29,3 +29,13 @@ $ create-react-app client
 $ cd client
 $ npm install bootstrap
 
+#Create migration fil
+$ touch migrations/2_deploy_contracts.js 
+$ cook the 2_deploy_contracts.js migration file 
+
+#start truffle console
+$ truffle develop
+
+#Within the truffle console, migrate files
+truffle(develop)>migrate
+

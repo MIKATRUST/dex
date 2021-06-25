@@ -87,7 +87,7 @@ contract Dex is Ownable {
                 amount);
         }
 
-    function createLimiteOrder (
+    function createLimitOrder (
         bytes32 ticker,
         uint amount,
         uint price,
@@ -132,7 +132,8 @@ contract Dex is Ownable {
             )); 
 
             //Bubble sort
-            uint i = orders.length-1;
+            uint i = orders.length > 0 ? orders.length-1 : 0;
+            
             while(i>0){
                 if(side == Side.BUY && orders[i].price < orders[i-1].price){
                     break;
@@ -146,6 +147,7 @@ contract Dex is Ownable {
                 orders[i] = order;
                 i--;
             }
+            
             
             nextOrderId++;
 
@@ -205,8 +207,9 @@ contract Dex is Ownable {
             }
 
             //Clean the order book by removing filled order
+            i = 0;
             while(i < orders.length && orders[i].filled == orders[i].amount){
-                for(uint j = i; j<orders.length; j++){
+                for(uint j = i; j<orders.length - 1; j++){
                     orders[j] = orders [j + 1];
                 }
                 orders.pop();

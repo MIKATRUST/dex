@@ -134,9 +134,9 @@ contract('Dex', (accounts) => {
 
     });
 
-    it('should NOT createLimiteOrder if token does not exist', async () => {
+    it('should NOT createLimitOrder if token does not exist', async () => {
         await expectRevert(
-            dex.createLimiteOrder(
+            dex.createLimitOrder(
                 web3.utils.fromAscii('TOKEN-DOES-NOT-EXIST'),
                 10,
                 web3.utils.toWei('100'),
@@ -147,9 +147,9 @@ contract('Dex', (accounts) => {
         );
     });
 
-    it('should NOT createLimiteOrder if token is DAI', async () => {
+    it('should NOT createLimitOrder if token is DAI', async () => {
         await expectRevert(
-            dex.createLimiteOrder(
+            dex.createLimitOrder(
                 DAI,
                 10,
                 web3.utils.toWei('100'),
@@ -160,9 +160,9 @@ contract('Dex', (accounts) => {
         );
     });
 
-    it('should NOT createLimiteOrder if token balance too low', async () => {
+    it('should NOT createLimitOrder if token balance too low', async () => {
         await expectRevert(
-            dex.createLimiteOrder(
+            dex.createLimitOrder(
                 BAT,
                 1,
                 web3.utils.toWei('100'),
@@ -173,9 +173,9 @@ contract('Dex', (accounts) => {
         );
     });
 
-    it('should NOT createLimiteOrder if dai balance too low', async () => {
+    it('should NOT createLimitOrder if dai balance too low', async () => {
         await expectRevert(
-            dex.createLimiteOrder(
+            dex.createLimitOrder(
                 BAT,
                 100,
                 web3.utils.toWei('100'),
@@ -186,7 +186,7 @@ contract('Dex', (accounts) => {
         );
     });
 
-    it('should createLimiteOrder, order book should be set correctly ', async () => {
+    it('should createLimitOrder, order book should be set correctly ', async () => {
 
         const amount = web3.utils.toWei('1000');
 
@@ -202,7 +202,7 @@ contract('Dex', (accounts) => {
             {from:trader2}
         );
 
-        await dex.createLimiteOrder(
+        await dex.createLimitOrder(
             BAT,
             5,
             web3.utils.toWei('100'),
@@ -210,14 +210,14 @@ contract('Dex', (accounts) => {
             {from: trader1}
         );
 
-        await dex.createLimiteOrder(
+        await dex.createLimitOrder(
             BAT,
             6,
             web3.utils.toWei('101'),
             SIDE.BUY,
             {from: trader1}
         );
-        await dex.createLimiteOrder(
+        await dex.createLimitOrder(
             BAT,
             100,
             web3.utils.toWei('98'),
@@ -225,7 +225,7 @@ contract('Dex', (accounts) => {
             {from: trader2}
         );
 
-        await dex.createLimiteOrder(
+        await dex.createLimitOrder(
             BAT,
             90,
             web3.utils.toWei('99'),
@@ -277,7 +277,7 @@ contract('Dex', (accounts) => {
         assert(sellOrders[1].amount === '90');
     });
 
-    it.only('should createMarketOrder and match against limit orders ', async () => {
+    it('should createMarketOrder and match against limit orders ', async () => {
         const amount = '1000'; //web3.utils.toWei('1000');
 
         await dex.deposit(
@@ -292,7 +292,7 @@ contract('Dex', (accounts) => {
             {from:trader2}
         );
         
-        await dex.createLimiteOrder(
+        await dex.createLimitOrder(
             BAT,
             '5',
             '100',/*web3.utils.toWei('100')*/
@@ -306,7 +306,7 @@ contract('Dex', (accounts) => {
             SIDE.SELL,
             {from: trader2}
         );
-
+        
         const balance11 = await dex.traderBalances(trader1, DAI);
         const balance12 = await dex.traderBalances(trader1, BAT);
         const balance21 = await dex.traderBalances(trader2, DAI);
@@ -316,11 +316,9 @@ contract('Dex', (accounts) => {
         assert (balance12.toString() === '5');
         assert (balance21.toString() === '500');
         assert (balance22.toString() === '995');
-
+    
     });
 
-
-    
 });
 
 
