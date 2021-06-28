@@ -7812,12 +7812,12 @@
         }
       },
       "links": {},
-      "address": "0x6623348399fD8A5291C70EB1240BB325f190176E",
-      "transactionHash": "0xa233112bd25176f8fdb096e2323d91f8fbe342a53650fa34220e1460bc157094"
+      "address": "0xB5C1924277078fBfdAB49195775530FCD8E5331b",
+      "transactionHash": "0xe049dbc1231aa20ed8583be74b05b2cbcfa38f12cc8ed06bf9657f53dbec4c5b"
     }
   },
   "schemaVersion": "3.4.1",
-  "updatedAt": "2021-06-25T09:30:15.230Z",
+  "updatedAt": "2021-06-28T13:46:03.354Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

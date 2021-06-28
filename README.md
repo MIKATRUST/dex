@@ -37,5 +37,17 @@ $ cook the 2_deploy_contracts.js migration file
 $ truffle develop
 
 #Within the truffle console, migrate files
-truffle(develop)>migrate
+truffle(develop)>migrate --reset
+
+#create utils.js to connect the frontend to the smart contracts
+$ touch src/utils.js (then complete the file)
+
+#install web3 inside the client folder
+$ npm install web3
+
+#install react-moment to simplify date manipulation
+$ npm install react-moment
+
+#do charts esily in react applications
+$ npm install recharts
 
