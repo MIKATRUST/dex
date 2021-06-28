@@ -1,7 +1,5 @@
 # dex
-Decentralized Exchange
-
- ! Educational purpose only
+Decentralized Exchange ! for Educational purpose only
 
 MikaTrust Enrolled as part of https://eattheblocks-pro.teachable.com/
 
@@ -48,6 +46,9 @@ $ npm install web3
 #install react-moment to simplify date manipulation
 $ npm install react-moment
 
-#do charts esily in react applications
+#do charts easily in react applications
 $ npm install recharts
+
+#install a new library to detect Metamask provider
+$ npm install @metamask/detect-provider
 
